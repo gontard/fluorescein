@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>fluorescein</artifactId>
+        <groupId>org.gontard</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <name>fluorescein-jni</name>
+    <artifactId>fluorescein-jni</artifactId>
+    <properties>
+        <libcount-agent.version>1.0-SNAPSHOT</libcount-agent.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerVersion>1.6</compilerVersion>
+                    <fork>true</fork>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <!-- Tell maven to copy the libcount-agent.so dependency into the build directory. This is so that it -->
+                <!-- can be linked to the JNI code and used within the tests. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>native-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>fluorescein-lib</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>once</forkMode>
+                    <environmentVariables>
+                        <LD_LIBRARY_PATH>${project.build.directory}</LD_LIBRARY_PATH>
+                    </environmentVariables>
+                    <argLine>-agentpath:fluorescein-lib-${libcount-agent.version}.so</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+    		<groupId>org.gontard</groupId>
+   			<artifactId>fluorescein-lib</artifactId>
+        	<version>1.0-SNAPSHOT</version>
+            <type>so</type>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+	
